@@ -1,0 +1,44 @@
+
+
+.App {
+  text-align: center;
+  font-family: Arial, sans-serif;
+  background-color: white; /* Set white background for the content */
+  padding: 70px;
+  border-radius: 40px; /* Add rounded corners to the content */
+}
+
+/* Add space between elements */
+.profile-picture {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 20px auto;
+  background-color: #eee;
+}
+
+.profile-picture img {
+  width: 100%;
+  height: auto;
+}
+
+input[type="file"],
+input[type="text"] {
+  margin: 10px 0; /* Add space above and below the input fields */
+}
+
+button {
+  background-color: rgb(7, 86, 139); /* Set button color to green */
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 10px 0; /* Add space above and below the buttons */
+  border-radius: 5px; /* Add rounded corners to the buttons */
+}
+
+button:hover {
+  background-color: #00467f; /* Darken the button color on hover */
+}
