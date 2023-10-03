@@ -111,7 +111,7 @@ class BoardAdmin extends Component {
       .catch((error) => {
         // Handle network or other errors here
         console.error("Failed to resubmit message:", error);
-        alert("Failed to resubmit message");
+        alert("Failed to resubmit message(Marked as poison pill). Refresh the page.");
 
       });
   };
@@ -206,15 +206,11 @@ class BoardAdmin extends Component {
                   <div>
                     <strong>Timestamp:</strong> {message.timestamp}
                   </div>
-                  <div>
-                    <strong>Type:</strong> {message.type}
-                  </div>
+                 
                   <div>
                     <strong>FileContent:</strong> {message.fileContent}
                   </div>
-                  <div>
-                    <strong>FileName:</strong> {message.fileName}
-                  </div>
+                 
                   <hr style={{border:"1px solid"}}/>
                 </li>
               ))}
@@ -246,12 +242,8 @@ class BoardAdmin extends Component {
                   <div>
                     <strong>Expiration Time:</strong> {message.timestamp}
                   </div>
-                  <div>
-                    <strong>FileName:</strong> {message.fileName}
-                  </div>
-                  <div>
-                    <strong>Type:</strong> {message.type}
-                  </div>
+                  
+                 
                  <div style={{textAlign:"right"}}>
                   <button onClick={() => this.handleResubmit(message.id)} style={{backgroundColor:"#225c97",color:"white"}}>
                     Resubmit
@@ -274,10 +266,10 @@ class BoardAdmin extends Component {
                     <strong>Id:</strong> {user.id}
                   </div>
                   <div>
-                    <strong>Name:</strong> {user.name}
+                    <strong>Name:</strong> {user.username}
                   </div>
                   <div>
-                    <strong>Ip Address:</strong> {user.ipAddress}
+                    <strong>E-Mail:</strong> {user.email}
                   </div>
                   <hr style={{border:"1px solid"}}/>
                 </li>

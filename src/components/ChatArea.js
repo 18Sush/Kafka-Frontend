@@ -1,4 +1,4 @@
-
+// ChatArea.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import SockJsClient from 'react-stomp';
@@ -9,18 +9,22 @@ import { IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SendIcon from '@mui/icons-material/Send';
 
-function ChatArea({ user}) {
+function ChatArea({ user }) {
+  // Initialize chatMessages state with messages from localStorage
+  const [chatMessages, setChatMessages] = useState(() => {
+    const storedMessages = localStorage.getItem('chatMessages');
+    return storedMessages ? JSON.parse(storedMessages) : [];
+  });
+
   const SOCKET_URL = 'http://localhost:9091/ws/';
 
   const [message, setMessage] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
-  const [chatMessages, setChatMessages] = useState([]);
   const [incomingMessages, setIncomingMessages] = useState([]);
-  const [senderId, setSenderId] = useState('YourSender'); // Replace with the actual sender ID
-
+  const [senderId, setSenderId] = useState(JSON.parse(localStorage.getItem("user")).username); // Replace with the actual sender ID
   const sendFile = async () => {
     try {
-      const receiver = user ? user.name : ''; // Replace with the actual receiver
+      const receiver = user ? user.name:'';// Replace with the actual receiver
       const type = 'FILE';
 
       const formData = new FormData();
@@ -42,7 +46,9 @@ function ChatArea({ user}) {
       }
 
       const sentFileMessage = { name: 'You', message: 'File Sent: ' + selectedFile.name, isFile: true, filename: selectedFile.name };
-      setChatMessages([...chatMessages, sentFileMessage]);
+      
+      // Update chatMessages state and local storage with the sent message
+      addMessage(sentFileMessage);
 
       setMessage('');
       setSelectedFile(null);
@@ -53,14 +59,17 @@ function ChatArea({ user}) {
 
   const sendMessage = async () => {
     try {
-      const receiver = user ? user.name : ''; // Replace with the actual receiver
+      const receiver = user ? user.name:''; // Replace with the actual receiver
       const type = 'TEXT';
-
+      setSenderId(JSON.parse(localStorage.getItem("user")).username)
       const formData = new FormData();
-      formData.append('sender', senderId);
+      //formData.append('sender', senderId);
+      formData.append('sender',JSON.parse(localStorage.getItem("user")).username)
+      console.log(senderId)
       formData.append('receiver', receiver);
       formData.append('type', type);
       formData.append('content', message);
+
 
       const response = await axios.post('http://localhost:9091/api/send', formData, {
         headers: {
@@ -75,7 +84,9 @@ function ChatArea({ user}) {
       }
 
       const sentMessage = { name: 'You', message: message };
-      setChatMessages([...chatMessages, sentMessage]);
+
+      // Update chatMessages state and local storage with the sent message
+      addMessage(sentMessage);
 
       setMessage('');
     } catch (error) {
@@ -90,8 +101,12 @@ function ChatArea({ user}) {
       if (msg.sender !== senderId && !isDuplicateFileMessage(msg.filename)) {
         setIncomingMessages([...incomingMessages, msg]);
         showNotification('Received a new message');
+        
+        // Update chatMessages state and local storage with the received message
+        addMessage(msg);
       }
     };
+
 
     const client = new SockJsClient(SOCKET_URL);
     client.onConnect = () => {
@@ -135,6 +150,21 @@ function ChatArea({ user}) {
     return chatMessages.some((msg) => msg.isFile && msg.filename === filename);
   };
 
+  // Function to add a new message to chatMessages and localStorage
+  const addMessage = (message) => {
+    const updatedMessages = [...chatMessages, message];
+    setChatMessages(updatedMessages);
+    localStorage.setItem('chatMessages', JSON.stringify(updatedMessages));
+  };
+
+  // When the component unmounts, you can clear the chatMessages from localStorage if needed
+  useEffect(() => {
+    return () => {
+      // Clear chatMessages from localStorage when component unmounts
+      localStorage.removeItem('chatMessages');
+    };
+  }, []);
+
   return (
     <div className='chatArea-container'>
       <SockJsClient
@@ -160,13 +190,31 @@ function ChatArea({ user}) {
         </IconButton>
       </div>
       <div className='messages-container'>
+      {/*Previous code*/}  
         {chatMessages.map((chatMessage, index) => (
           <MessageSelf key={index} name={chatMessage.name} message={chatMessage.message} />
         ))}
 
+        {/*Login applied for one to one message*/}
+        {chatMessages.map((chatMessage, index) => {
+          const isReceiverMatch = user && chatMessage.receiver === user.name;
+
+          if (isReceiverMatch) {
+            return (
+              <MessageSelf key={index} name={chatMessage.name} message={chatMessage.message} />
+            );
+          }})}
+          
         {incomingMessages.map((incomingMessage, index) => {
           const isMessageInChat = chatMessages.some((chatMessage) => chatMessage.message === incomingMessage.content);
-          if (!isMessageInChat && !isDuplicateFileMessage(incomingMessage.fileName)) {
+          
+          // Check if the sender's name matches the user's name in the header
+    const isSenderMatch = user && incomingMessage.sender === user.name;
+    
+    // Check if it's not a duplicate file message
+    const isNotDuplicateFileMessage = !isDuplicateFileMessage(incomingMessage.fileName);
+          
+    if (!isMessageInChat && isSenderMatch && isNotDuplicateFileMessage) {
             return (
               <MessageOthers
                 key={index}
@@ -205,4 +253,4 @@ function ChatArea({ user}) {
   );
 }
 
-export default ChatArea;   
+export default ChatArea;

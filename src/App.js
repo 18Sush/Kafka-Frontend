@@ -1,8 +1,10 @@
 import React, { Component } from "react";
 import { Routes, Route, Link } from "react-router-dom";
+
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import "./components/myStyles.css"
+
 
 import AuthService from "./services/auth.service";
 
@@ -19,6 +21,8 @@ import ClientProfile from "./components/ClientProfile";
 // import AuthVerify from "./common/auth-verify";
 import EventBus from "./common/EventBus";
 import MainContainer from "./components/MainContainer";
+
+
 
 class App extends Component {
 
